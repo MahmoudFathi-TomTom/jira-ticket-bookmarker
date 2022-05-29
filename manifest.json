@@ -1,0 +1,37 @@
+{
+  "manifest_version": 2,
+  "name": "Jira Ticketn Bookmarker",
+  "version": "1.0",
+
+  "description": "Create",
+
+  "icons": {
+    "48": "icons/extension.png"
+  },
+
+  "permissions": [
+      "activeTab",
+      "clipboardWrite",
+      "bookmarks",
+      "tabs"
+  ], 
+
+  "browser_action": {
+    "default_icon": "icons/extension.png",
+    "default_title": "Jira Ticket Bookmarker"
+  },
+
+
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}
