@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "Jira Ticketn Bookmarker",
-  "version": "1.0",
+  "name": "Jira Ticket Bookmarker",
+  "version": "1.1",
 
   "description": "Create",
 
@@ -11,7 +11,6 @@
 
   "permissions": [
       "activeTab",
-      "clipboardWrite",
       "bookmarks",
       "tabs"
   ], 
