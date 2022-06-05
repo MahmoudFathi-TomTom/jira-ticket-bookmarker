@@ -3,12 +3,6 @@ var currentTab;
 // Name of the projects in Jira
 const projects = ["NDSENG", "OM2NDS", "HCP3MAP", "NDSIMP"];
 
-// Name of the supported websites to bookmark
-const websites = new Map();
-websites.set('https://jira.tomtomgroup.com', 'Jira');
-websites.set('https://jenkins-eng.nds.tomtom.com', 'EngJenkins');
-websites.set('http://nds-jenkins.ttg.global', 'OpsJenkins');
-
 function getTicketId(url) {
   for (var i=0; i<projects.length; i++) {
     var re = new RegExp(projects[i] + '-[0-9]{1,6}');
@@ -20,19 +14,20 @@ function getTicketId(url) {
   return null;
 }
 
-function getBookmarkPrefix(url) {
-  for (let [k, v] of websites) {
-    console.log("Key: " + k);
-    console.log("Value: " + v);
-    if (url.startsWith(k)) {
-      return v;
-    }
-  }
-  return 'Unknown';
-}
-
 function findBookmarkByTitle(bookmarkTitle) {
   let searching = browser.bookmarks.search({title: bookmarkTitle});
+  
+  return searching.then((bookmarkItems) => {
+    if (bookmarkItems[0]) {
+      return bookmarkItems[0].id;
+    } else {
+      return null;
+    }
+  });
+}
+
+function findBookmarkByUrl(bookmarkUrl) {
+  let searching = browser.bookmarks.search({url: bookmarkUrl});
   
   return searching.then((bookmarkItems) => {
     if (bookmarkItems[0]) {
@@ -56,10 +51,13 @@ function createFolderIfNotExists(folderName) {
 }
 
 function bookmarkIfNotExists(bookmarkTitle, bookmarkUrl, bookmarkParentId) {
-  return findBookmarkByTitle(bookmarkTitle).then((bookmarkId) => {
+  console.log('Entering bookmarkIfNotExists with ' + bookmarkTitle);
+  return findBookmarkByUrl(bookmarkUrl).then((bookmarkId) => {
     if (bookmarkId != null) {
+      console.log('Bookmark already exists');
       return bookmarkId;
     } else {
+      console.log('Bookmark to be created...')
       return browser.bookmarks.create({title: bookmarkTitle, url: bookmarkUrl, parentId: bookmarkParentId}).then((bm) => {
         return bm.id;
       });
@@ -73,8 +71,7 @@ function process() {
   if (ticketId != null) {
     Promise.resolve(createFolderIfNotExists(ticketId)).then(function(folderId) {
       console.log(folderId);
-      bookmarkPrefix = getBookmarkPrefix(currentTab.url);
-      bookmarkTitle = bookmarkPrefix + ' ' + ticketId;
+      bookmarkTitle = currentTab.title;
       bookmarkIfNotExists(bookmarkTitle, currentTab.url, folderId);
     });
   } else {
